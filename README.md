@@ -1,6 +1,8 @@
 # BFFTool
 *BFFTool* is a chrome extension for backend-for-front testing. In the other words, it is a simple postman which implemented by chrome extension.
 
+[中文README](https://github.com/hqwhqwhq/BFFTool/blob/main/README.zh.md)
+
 ## Install
 1. Copy sources from git repository into a directory.
 1. Load the unzipped extension from your directory.
