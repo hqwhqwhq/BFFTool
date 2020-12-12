@@ -1,0 +1,54 @@
+<!-- /**
+ * BFF Tool v0.1
+ * Copyright 2020 hqwhqwhq (https://github.com/hqwhqwhq/BFFTool)
+ * Licensed under MIT (https://github.com/hqwhqwhq/BFFTool/blob/main/LICENSE)
+ */ -->
+<html>
+
+<head>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/jquery.json-viewer.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <style>
+        body {
+            width: 600px;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="input-group mb-3 mt-3 col-12">
+                <div style="width: 20%;" class="input-group-prepend">
+                    <select id="requestMethod" class="custom-select ">
+                        <option value="GET" selected>GET</option>
+                        <option value="POST">POST</option>
+                    </select>
+                </div>
+                <input id="url" style="width: 65%;" type="text" placeholder="URL..."/>
+                <button id="submit" style="width: 15%;" class="btn btn-primary" type="button">Submit</button>
+            </div>
+            <div class="input-group col-12">
+                <textarea id="params" rows=1 placeholder="Params: only support json" style="width: 100%;"></textarea>
+            </div>
+            <div class="mb-3 mt-3 col-12">
+                <div id="responseCard" class="card border-primary" hidden>
+                    <div class="card-header">Response</div>
+                    <div class="card-text">
+                        <pre id="response"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.json-viewer.js"></script>
+    <script src="popup.js"></script>
+</body>
+
+</html>
