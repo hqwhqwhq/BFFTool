@@ -5,24 +5,79 @@
  */
 var port = chrome.runtime.connect({name: "postman"});
 
-port.onMessage.addListener(function(msg) {
-    objMsg = JSON.parse(msg)
+port.onMessage.addListener(function(response) {
+    objResponse = JSON.parse(response)
 
-    $("#response").jsonViewer(objMsg, {collapsed: false, withQuotes: true, withLinks: false})
+    $("#response").jsonViewer(objResponse, {collapsed: false, withQuotes: true, withLinks: false})
     $("#responseCard").removeAttr("hidden")
 })
 
-$("#submit").click(function() {
-    if ($("#url").val()) {
-        msg = {"requestMethod": $("#requestMethod").val(), "url": $("#url").val(), "params": $("#params").val()}
+window.onload = function() {
+    chrome.storage.sync.get(['requestMethod', 'url', 'params'], function(request){
+        if (request.requestMethod) {
+            $("#requestMethod option[value=" + request.requestMethod +"]").attr("selected", true)
+        } else {
+            $("#requestMethod option[value=GET").attr("selected", true)
+        }
 
-        port.postMessage(msg)
+        if (request.url) {
+            $("#url").val(request.url)
+        }
+
+        if (request.params) {
+            $("#params").val(request.params)
+
+            try {
+                prettyParams()
+            } catch(error) {
+            }
+        }
+    })
+}
+
+$("#submit").click(function() {
+    try {
+        prettyParams()
+    } catch (error) {
+        alert("Please input valid json params!")
+
+        return
+    }
+
+    if ($("#url").val()) {
+        var request = generateRequest()
+
+        chrome.storage.sync.set(request)
+
+        port.postMessage(request)
     } else {
         alert("Please input url!");
     }
 });
 
+window.onblur = function() {
+    var request = generateRequest()
+
+    chrome.storage.sync.set(request)
+
+    try {
+        prettyParams()
+    } catch (error) {
+    }
+}
+
 $("#params").blur(function() {
+    try {
+        prettyParams()
+    } catch (error) {
+    } 
+})
+
+function generateRequest() {
+    return {"requestMethod": $("#requestMethod").val(), "url": $("#url").val(), "params": $("#params").val()}
+}
+
+function prettyParams() {
     var params = $("#params").val()
 
     if (params) {
@@ -33,7 +88,26 @@ $("#params").blur(function() {
             $("#params").val(pretty)
             $("#params").height(document.getElementById("params").scrollHeight)
         } catch (error) {
-            alert("Please input valid json params!")
+            $("#params").val(handleUselessBlankLines(params))
+            $("#params").height(document.getElementById("params").scrollHeight)
+            throw error
         }
     }
-});
+}
+
+const handleUselessBlankLines = (data) => {
+    data = data.trim()
+
+    var vaildData = ""
+
+    var preChar = "\n"
+
+    for (let c of data) {
+        if (c != "\n" || preChar != "\n") {
+            vaildData += c
+        }
+        preChar = c
+    }
+
+    return vaildData
+}

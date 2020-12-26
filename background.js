@@ -4,10 +4,32 @@
  * Licensed under MIT (https://github.com/hqwhqwhq/BFFTool/blob/main/LICENSE)
  */
 chrome.runtime.onConnect.addListener(function(port) {
-    port.onMessage.addListener(function(msg) {
+    port.onMessage.addListener(function(request) {
+
         var xhr = new XMLHttpRequest();
 
-        xhr.open(msg.requestMethod, msg.url)
+        if (request.requestMethod === "GET") {
+            let urlSuffix = ""
+
+            Object.entries(JSON.parse(request.params)).forEach(([key, value]) => {
+                if (!!urlSuffix) {
+                    urlSuffix += "&" + key + "=" + value
+                } else {
+                    urlSuffix += key + "=" + value
+                }
+            });
+
+            request.url += "?" + urlSuffix
+
+            xhr.open(request.requestMethod, request.url)
+
+            xhr.send()
+        } else {
+            xhr.open(request.requestMethod, request.url)
+
+            var blob = new Blob([request.params], {type: 'application/json'})
+            xhr.send(blob)
+        }
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
@@ -18,8 +40,5 @@ chrome.runtime.onConnect.addListener(function(port) {
                 }
             }
         }
-
-        var blob = new Blob([msg.params], {type: 'application/json'})
-        xhr.send(blob)
     })
 })
