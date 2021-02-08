@@ -3,21 +3,30 @@
  * Copyright 2020 hqwhqwhq (https://github.com/hqwhqwhq/BFFTool)
  * Licensed under MIT (https://github.com/hqwhqwhq/BFFTool/blob/main/LICENSE)
  */
-var port = chrome.runtime.connect({name: "postman"});
+var port = chrome.runtime.connect({ name: "postman" });
 
 port.onMessage.addListener(function(response) {
-    objResponse = JSON.parse(response)
+    try {
+        objResponse = JSON.parse(response)
 
-    $("#response").jsonViewer(objResponse, {collapsed: false, withQuotes: true, withLinks: false})
+        $("#response").jsonViewer(objResponse, { collapsed: false, withQuotes: true, withLinks: false })
+    } catch (error) {
+        $("#response").val(response)
+    }
+
     $("#responseCard").removeAttr("hidden")
 })
 
 window.onload = function() {
-    chrome.storage.sync.get(['requestMethod', 'url', 'params'], function(request){
+    chrome.storage.sync.get(['requestMethod', 'urlPrefix', 'url', 'params', 'headers'], function(request) {
         if (request.requestMethod) {
-            $("#requestMethod option[value=" + request.requestMethod +"]").attr("selected", true)
+            $("#requestMethod option[value=" + request.requestMethod + "]").attr("selected", true)
         } else {
             $("#requestMethod option[value=GET").attr("selected", true)
+        }
+
+        if (request.urlPrefix) {
+            $("#urlPrefix").val(request.urlPrefix)
         }
 
         if (request.url) {
@@ -28,24 +37,33 @@ window.onload = function() {
             $("#params").val(request.params)
 
             try {
-                prettyParams()
-            } catch(error) {
-            }
+                prettyInput("params")
+            } catch (error) {}
+        }
+
+        if (request.headers) {
+            $("#headers").val(request.headers)
+
+            try {
+                prettyInput("headers")
+            } catch (error) {}
         }
     })
 }
 
 $("#submit").click(function() {
     try {
-        prettyParams()
+        prettyHeadersAndParams()
     } catch (error) {
         alert("Please input valid json params!")
 
         return
     }
 
-    if ($("#url").val()) {
+    if ($("#url").val() || $("#urlPrefix").val()) {
         var request = generateRequest()
+
+        console.log(request)
 
         chrome.storage.sync.set(request)
 
@@ -61,35 +79,53 @@ window.onblur = function() {
     chrome.storage.sync.set(request)
 
     try {
-        prettyParams()
-    } catch (error) {
-    }
+        prettyHeadersAndParams()
+    } catch (error) {}
 }
 
 $("#params").blur(function() {
     try {
-        prettyParams()
-    } catch (error) {
-    } 
+        prettyInput("params")
+    } catch (error) {}
+})
+
+$("#headers").blur(function() {
+    try {
+        prettyInput("headers")
+    } catch (error) {}
 })
 
 function generateRequest() {
-    return {"requestMethod": $("#requestMethod").val(), "url": $("#url").val(), "params": $("#params").val()}
+    return {
+        "requestMethod": $("#requestMethod").val(),
+        "urlPrefix": $("#urlPrefix").val(),
+        "url": $("#url").val(),
+        "params": $("#params").val(),
+        "headers": $("#headers").val()
+    }
 }
 
-function prettyParams() {
-    var params = $("#params").val()
+const prettyHeadersAndParams = () => {
+    prettyInput("headers")
+    prettyInput("params")
+}
 
-    if (params) {
+const prettyInput = (inputName) => {
+    var input = $(`#${inputName}`)
+
+    var data = input.val()
+
+    if (data) {
         try {
-            var obj = JSON.parse(params)
+            var obj = JSON.parse(data)
             var pretty = JSON.stringify(obj, undefined, 2);
 
-            $("#params").val(pretty)
-            $("#params").height(document.getElementById("params").scrollHeight)
+            input.val(pretty)
+            input.height(document.getElementById(inputName).scrollHeight)
         } catch (error) {
-            $("#params").val(handleUselessBlankLines(params))
-            $("#params").height(document.getElementById("params").scrollHeight)
+            input.val(handleUselessBlankLines(data))
+            input.height(document.getElementById(inputName).scrollHeight)
+
             throw error
         }
     }

@@ -23,23 +23,34 @@
 <body>
     <div class="container">
         <div class="row">
-            <div class="input-group mb-3 mt-3 col-12">
+            <div class="input-group mt-2 col-12">
                 <div style="width: 20%;" class="input-group-prepend">
                     <select id="requestMethod" class="custom-select ">
                         <option value="GET">GET</option>
                         <option value="POST">POST</option>
                     </select>
                 </div>
-                <input id="url" style="width: 65%;" type="text" placeholder="URL..."/>
+                <input id="urlPrefix" style="width: 65%;" type="text" placeholder="URL Prefix..." />
                 <button id="submit" style="width: 15%;" class="btn btn-primary" type="button">Submit</button>
             </div>
-            <div class="input-group col-12">
-                <textarea id="params" rows=1 placeholder="Params: only support json" style="width: 100%;"></textarea>
+            <div class="input-group mb-2 col-12">
+                <input id="url" class="col-12" type="text" placeholder="URL..." />
             </div>
-            <div class="mb-3 mt-3 col-12">
-                <div id="responseCard" class="card border-primary" hidden>
-                    <div class="card-header">Response</div>
-                    <div class="card-text">
+
+            <label class="col-12 ">Header</label>
+            <div class="input-group col-12 ">
+                <textarea id="headers" rows=1 class="col-12 " placeholder="Headers: only support json "></textarea>
+            </div>
+
+            <label class="col-12 ">Body</label>
+            <div class="input-group col-12 ">
+                <textarea id="params" rows=1 class="col-12 " placeholder="Body: only support json "></textarea>
+            </div>
+
+            <div class="mb-3 mt-3 col-12 ">
+                <div id="responseCard" class="card border-primary " hidden>
+                    <div class="card-header ">Response</div>
+                    <div class="card-text ">
                         <pre id="response"></pre>
                     </div>
                 </div>
@@ -47,8 +58,8 @@
         </div>
     </div>
 
-    <script src="js/jquery.json-viewer.js"></script>
-    <script src="popup.js"></script>
+    <script src="js/jquery.json-viewer.js "></script>
+    <script src="popup.js "></script>
 </body>
 
 </html>
